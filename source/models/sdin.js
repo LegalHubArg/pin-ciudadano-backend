@@ -27,6 +27,8 @@ async function traerNormas(request) {
         LEFT OUTER JOIN normas_metadatos e ON a.idNorma=e.idNorma
         LEFT OUTER JOIN sdin_temas_jerarquia l ON a.idNormaFront=l.idNormaHijo
         LEFT OUTER JOIN sdin_temas ON l.idTema=sdin_temas.idTema
+        LEFT OUTER JOIN sdin_normas_relaciones rel ON rel.idNormaOrigen = a.idNormaFront
+        LEFT OUTER JOIN sdin_relaciones_tipos rel_tipo ON rel.idRelacion = rel_tipo.idRelacion
         WHERE 1=1
         `;
         let params = [];
@@ -50,6 +52,9 @@ async function traerNormas(request) {
                             sql += `AND (${condicion})`
                         }
                         break;
+                case ('idRelacion'):
+                    sql = String(sql) + String(` AND rel_tipo.${key}=${value} AND rel.estado = 1`);
+                    break;
                 case ('normaNumero'):
                     sql = `${sql} AND a.${key}='${value}'`;
                     break;
@@ -227,6 +232,25 @@ async function traerUnaNorma(request) {
         if (res.length > 0) {
             res[0].antecedentes = await conn.query(sql, [request.idNorma])
         }
+
+        // traer los anexos que tiene la norma:
+        res.anexos = []
+        let sqlAnexos = `SELECT an.idAnexoSDIN,
+        f.idNormaSDIN,
+        an.archivo AS ArchivoAnexo,
+        an.archivoS3 AS ArchivoAnexoS3 
+        FROM sdin_normas_anexos an
+        LEFT OUTER JOIN sdin_normas_front f ON f.idNormaSDIN = an.idNormaSDIN
+        WHERE f.idNormaSDIN = ?`
+
+        // ejecuto la consulta
+        let a = await conn.query(sqlAnexos, [request.idNorma])
+
+        if (a.length > 0) {
+            // saco los metadatos de la consulta:
+            res.anexos = a.filter(anexo => !anexo.meta);
+        }
+
         await conn.commit();
     }
     catch (err) {
@@ -292,6 +316,20 @@ async function traerDependencias() {
         FROM sdin_dependencias
         WHERE estado = 1
         ORDER BY dependencia ASC`;
+        connection.pool.query(sql, function (error, results) {
+            if (error) {
+                reject(error);
+            }
+            resolve(results);
+        });
+    });
+}
+
+async function traerRelaciones() {
+    return new Promise((resolve, reject) => {
+        let sql = `SELECT idRelacion,relacion FROM sdin_relaciones_tipos
+        WHERE estado = 1
+        ORDER BY relacion ASC`;
         connection.pool.query(sql, function (error, results) {
             if (error) {
                 reject(error);
@@ -415,5 +453,5 @@ function traerImagenes(request) {
 module.exports = {
     traerNormas, traerUnaNorma, traerJerarquiaTemas, traerDependencias, traerOrganismos,
     normaTiposSDIN, traerAlcances, traerClases, traerRelacionesDeNorma, traerTemasNormaSDIN,
-    /* traerEstados,  */traerGestiones, traerImagenes, traerImagenSDIN
+    /* traerEstados,  */traerGestiones, traerImagenes, traerImagenSDIN,traerRelaciones
 }

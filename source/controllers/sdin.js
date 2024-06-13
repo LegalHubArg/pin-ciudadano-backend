@@ -1,5 +1,5 @@
 const { traerNormas, traerUnaNorma, traerJerarquiaTemas, normaTiposSDIN, traerOrganismos, traerDependencias,
-        traerAlcances, traerClases, traerRelacionesDeNorma, traerTemasNormaSDIN, traerEstados, traerGestiones, traerImagenes, traerImagenSDIN
+        traerAlcances, traerClases, traerRelacionesDeNorma, traerTemasNormaSDIN, traerEstados, traerGestiones, traerImagenes, traerImagenSDIN, traerRelaciones
          } = require('../models/sdin')
 let AWS = require('aws-sdk');
 const s3 = new AWS.S3({
@@ -40,6 +40,7 @@ async function traerNormasSDIN(req, res, next) {
     request.tematica = req.body?.tematica;
     request.rama = req.body?.rama;
     request.textoBO = req.body?.textoBO;
+    request.idRelacion = req.body?.idRelacion
 
     //Paginacion
     request.limite = req.body.limite;
@@ -116,7 +117,7 @@ async function traerUnaNormaSDIN(req, res, next) {
                 throw e
             });
         res.status(200)
-        res.send(JSON.stringify({ mensaje: 'PIN: Norma:', data: result }))
+        res.send(JSON.stringify({ mensaje: 'PIN: Norma:', data: result, anexos: result.anexos }))
         res.end();
     }
     catch (e) {
@@ -250,6 +251,27 @@ async function traerOrganismosSDINController(req, res, next) {
       console.log(er)
       res.status(409)
       res.send(JSON.stringify({ mensaje: "PIN: Error al traer Dependencias SDIN.", data: String(er) }))
+      res.end();
+      return;
+  
+    }
+  }
+  async function traerRelacionesSDINController(req,res,next){
+    try {
+      let request = {};
+  
+      let respuesta = await traerRelaciones(request)
+  
+      res.status(200)
+      res.send(JSON.stringify({ mensaje: 'PIN: Relaciones SDIN.', data: respuesta }))
+      res.end();
+      return;
+  
+    }
+    catch (er) {
+      console.log(er)
+      res.status(409)
+      res.send(JSON.stringify({ mensaje: "PIN: Error al traer Relaciones SDIN.", data: String(er) }))
       res.end();
       return;
   
@@ -425,4 +447,4 @@ module.exports = {
     traerJerarquiaTemasSDIN,
     normasTiposSDINController, traerDependenciasSDINController, traerOrganismosSDINController,
     traerAlcancesSDINController, traerClasesSDINController, traerRelacionesDeNormaSDINController, traerArchivoS3SdinNormas,
-    traerTemasNormaSDINController, traerArchivoS3Digesto, /* traerEstadosSDINController, */ traerGestionesSDINController, traerImagenesNormaSDINController, traerImagenSDINController, traerArchivoTextoActualizado }
+    traerTemasNormaSDINController, traerArchivoS3Digesto, /* traerEstadosSDINController, */ traerGestionesSDINController, traerImagenesNormaSDINController, traerImagenSDINController, traerArchivoTextoActualizado,traerRelacionesSDINController }

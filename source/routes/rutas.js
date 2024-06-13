@@ -8,7 +8,7 @@ const { traerBoletinesPublicadosController, traerSeccionesBoletinesController,
 const { traerNormasSDIN, traerUnaNormaSDIN, traerJerarquiaTemasSDIN, normasTiposSDINController, 
     traerDependenciasSDINController, traerOrganismosSDINController, traerAlcancesSDINController,
     traerClasesSDINController, traerRelacionesDeNormaSDINController, traerTemasNormaSDINController, traerArchivoS3SdinNormas,
-    /* traerEstadosSDINController,  */traerGestionesSDINController, traerImagenesNormaSDINController, traerImagenSDINController, traerArchivoTextoActualizado, traerArchivoS3Digesto } = require('../controllers/sdin')
+    /* traerEstadosSDINController,  */traerGestionesSDINController, traerImagenesNormaSDINController, traerImagenSDINController, traerArchivoTextoActualizado, traerArchivoS3Digesto,traerRelacionesSDINController } = require('../controllers/sdin')
 const { traerNormasDJ, traerRamasController, traerTemasController, traerUnaNormaDJ, traerArbolTematico } = require('../controllers/dj')
 const { loginApi, traerProcesoDeCompra } = require('../controllers/api-bac')
 
@@ -39,7 +39,8 @@ router.get('/sdin/traer/jerarquia', traerJerarquiaTemasSDIN)
 
 router.get('/sdin/tipos-normas', normasTiposSDINController)
 router.get('/sdin/organismos',traerOrganismosSDINController)
-router.get('/sdin/dependencias', traerDependenciasSDINController) 
+router.get('/sdin/dependencias', traerDependenciasSDINController)
+router.get('/sdin/relaciones', traerRelacionesSDINController) 
 router.get('/sdin/alcances', traerAlcancesSDINController) 
 router.get('/sdin/clases', traerClasesSDINController) 
 // router.get('/sdin/estados', traerEstadosSDINController) 
