@@ -1,8 +1,7 @@
-require('dotenv').config()
+require("dotenv").config();
 
 var mariadb = require("mariadb/callback");
 var mariadbPromise = require("mariadb");
-
 
 var pool = mariadb.createPool({
   connectionLimit: 10,
@@ -22,4 +21,18 @@ var poolPromise = mariadbPromise.createPool({
   port: process.env.MARIADB_PORT,
 });
 
-module.exports = {pool, poolPromise};
+async function verificarConexion() {
+  let connection;
+  try {
+    connection = await pool.getConnection();
+    console.log("Conexión a la base de datos MariaDB establecida");
+    return true;
+  } catch (err) {
+    console.error("Error al conectar a la base de datos:", err);
+    return false;
+  } finally {
+    if (connection) connection.release();
+  }
+}
+
+module.exports = { pool, poolPromise, verificarConexion };

@@ -6,8 +6,10 @@ const bodyParser = require("body-parser");
 const http = require("http");
 const routes = require("./routes/rutas");
 const morgan = require("morgan");
+const { verificarConexion } = require("./services/conexion-mariadb");
 
 const port = process.env.API_PORT;
+
 //app.listen(process.env.API_PORT, () => { console.log('Listening on 9000') })
 
 const apiversion = "/api/" + process.env.API_VERSION;
@@ -33,6 +35,7 @@ app.use(bodyParser.json());
 app.use(morgan("dev"));
 
 //HEALTH
+verificarConexion();
 async function pinrun(req, res) {
   res.status(200);
   res.send(JSON.stringify({ status: "OK" }));
