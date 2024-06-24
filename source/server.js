@@ -28,6 +28,7 @@ const corsOptions = {
   credentials: true,
 };
 app.use(cors(corsOptions));
+console.log("testing push")
 
 app.use(bodyParser.json());
 
